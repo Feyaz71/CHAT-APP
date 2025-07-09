@@ -1,0 +1,224 @@
+/* 🔹 Reset & Font Setup */
+
+/* 👇 Adding custom fonts from downloaded TTF files */
+@font-face {
+  font-family: 'font1'; /* This is for headings */
+  src: url('fonts/font1.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'font2'; /* This one used in nav title */
+  src: url('fonts/font2.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ✨ Reset default margin/padding and enable box-sizing */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 👇 Set default body font and background */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: url(images/bg1.jpg); /* bg image added */
+  color: #f0f0f0; /* text color light */
+}
+
+/* 🔹 Navbar Section */
+
+/* 👇 Top nav bar with transparency + blur effect */
+.navbar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 15px 30px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* keeps it above everything */
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* 👇 Align logo left and links right */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 👇 App title style */
+.nav-title {
+  font-family: "font2"; /* using custom font */
+  font-size: 2.5em;
+  color: #8e44ec;
+}
+
+/* 👇 nav menu links style */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: #f0f0f0;
+  text-decoration: none;
+  font-weight: 500;
+}
+.nav-links a:hover {
+  color: #8e44ec;
+}
+
+/* 🔹 Hero Section (Top section with heading/image) */
+.hero-section {
+  margin-top: 80px; /* so nav doesn't cover */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px 10%;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+}
+
+/* 👇 Left content (heading + para + btns) */
+.hero-content {
+  flex: 1;
+}
+
+.hero-content h1 {
+  font-family: "font1"; /* using our font */
+  font-size: 4.5em;
+  margin-bottom: 20px;
+}
+
+.hero-content h1 span {
+  color: #8e44ec;
+}
+
+.hero-content p {
+  font-size: 1.1em;
+  margin-bottom: 25px;
+  color: #ccc;
+}
+
+/* 👇 Buttons */
+.hero-buttons .btn {
+  text-decoration: none;
+  padding: 12px 25px;
+  margin-right: 10px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+/* 👇 purple btn */
+.btn.primary {
+  background: #8e44ec;
+  color: white;
+}
+
+/* 👇 outline btn */
+.btn.secondary {
+  background: transparent;
+  border: 2px solid #8e44ec;
+  color: #8e44ec;
+}
+
+/* 👇 hover effects */
+.btn.primary:hover {
+  background: #732dbe;
+}
+
+.btn.secondary:hover {
+  background: #8e44ec;
+  color: white;
+}
+
+/* 👇 Right Image */
+.hero-image {
+  flex: 1;
+  text-align: center;
+}
+
+.hero-image img {
+  max-width: 90%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(142, 68, 236, 0.4);
+}
+
+/* 🔹 Features Section */
+.features {
+  padding: 60px 10%;
+  text-align: center;
+}
+
+.features h2 {
+  font-size: 2em;
+  margin-bottom: 40px;
+  color: #fff;
+}
+
+/* 👇 Feature cards */
+.feature-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+}
+
+.feature-item {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  max-width: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 25px rgba(142, 68, 236, 0.4);
+}
+
+.feature-item img {
+  height: 50px;
+  margin-bottom: 15px;
+}
+
+.feature-item h3 {
+  margin-bottom: 10px;
+  color: #8e44ec;
+}
+
+.feature-item p {
+  color: #ccc;
+}
+
+/* 🔹 Footer */
+.footer {
+  text-align: center;
+  background: #0a0a0a;
+  color: #999;
+  padding: 20px;
+  margin-top: 40px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.footer-links a {
+  color: #aaa;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: #fff;
+}

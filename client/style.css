@@ -1,0 +1,229 @@
+/* 🟣 Font Setup - Custom Fonts I downloaded */
+
+@font-face {
+  font-family: 'font1'; /* Main heading font */
+  src: url('fonts/font1.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'font2'; /* Used in nav title */
+  src: url('fonts/font2.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 🟡 Resetting all browser default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ⚪ Body styling with bg image and font */
+body {
+  font-family: 'Poppins', sans-serif; /* Normal text font */
+  background: url(images/bg1.jpg); /* Custom background */
+  color: #f0f0f0; /* light font color */
+}
+
+/* 🔷 NAVBAR styling */
+.navbar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05); /* slight white transparent bg */
+  backdrop-filter: blur(10px); /* blurry effect */
+  color: white;
+  padding: 15px 30px;
+  position: fixed; /* stays on top */
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* nav container flex layout */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* navbar title uses 2nd font and purple */
+.nav-title {
+  font-family: "font2";
+  font-size: 2.5em;
+  color: #8e44ec;
+}
+
+/* nav links setup */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+/* links inside navbar */
+.nav-links a {
+  color: #f0f0f0;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: #8e44ec;
+}
+
+
+/* 🟩 MAIN LOGIN SECTION (centered box) */
+.main-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 100px auto; /* space under navbar */
+  padding: 30px;
+}
+
+/* Login box design */
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(142, 68, 236, 0.2);
+  text-align: center;
+  backdrop-filter: blur(10px); /* blurry glass */
+}
+
+/* login heading */
+.login-box h2 {
+  font-family: "font1"; /* custom downloaded font */
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+/* inputs and dropdown styling */
+.login-box input,
+.login-box select {
+  padding: 12px;
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid #8e44ec;
+  background-color: #1c1c1c;
+  color: #fff;
+  margin-bottom: 15px;
+  font-size: 1em;
+}
+
+.login-box input::placeholder,
+.login-box select option {
+  color: #ccc;
+}
+
+/* Join button */
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  background: #8e44ec;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.login-box button:hover {
+  background: #732dbe;
+}
+
+
+/* 🟨 CHAT PAGE STYLING */
+
+#chatPage {
+  margin-top: 100px; /* so it doesn't go under navbar */
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 15px rgba(142, 68, 236, 0.2);
+  backdrop-filter: blur(10px);
+  color: #f0f0f0;
+}
+
+#chatPage h2 {
+  font-family: "font1";
+  margin-bottom: 20px;
+  color: #8e44ec;
+}
+
+/* message container box */
+#chatBox {
+  height: 500px;
+  overflow-y: auto;
+  border: 1px solid #8e44ec;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #1a1a1a;
+  border-radius: 10px;
+}
+
+
+/* 🟦 MESSAGE INPUT AREA */
+
+.message-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.message-bar input[type="text"] {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid #8e44ec;
+  background: #1c1c1c;
+  color: white;
+  font-size: 1em;
+}
+
+.message-bar input::placeholder {
+  color: #ccc;
+}
+
+/* Send, emoji, gif buttons */
+.message-bar button {
+  padding: 12px 15px;
+  background: #8e44ec;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-weight: bold;
+}
+
+.message-bar button:hover {
+  background: #732dbe;
+}
+
+
+/* 🔻 RESPONSIVE STUFF for mobiles */
+@media screen and (max-width: 768px) {
+  .login-box {
+    width: 90%;
+  }
+
+  #chatBox {
+    height: 400px; /* slightly less height */
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}

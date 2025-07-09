@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic setup for HTML page -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat App</title>
+
+  <!-- Linking stylesheet for chat page design -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- 🔹 NAVIGATION BAR -->
+  <!-- 👇 This is the top navbar used across pages -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <h1 class="nav-title">💬 Chat App</h1>
+      <ul class="nav-links">
+        <!-- Links to other parts of site -->
+        <li><a href="index.html">Home</a></li>
+        <li><a href="#">Features</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 🔹 LOGIN FORM BEFORE CHAT START -->
+  <!-- 👇 Centered box for user to join a chat room -->
+  <div class="main-wrapper">
+    <div class="login-box">
+      <h2>Join Chat</h2>
+
+      <!-- Input for user name -->
+      <input type="text" id="username" placeholder="Enter username" /><br><br>
+
+      <!-- Dropdown to select a room -->
+      <select id="roomDropdown">
+        <option value="">-- Select a room --</option>
+      </select><br><br>
+
+      <!-- Input for typing new room name -->
+      <input type="text" id="room" placeholder="Or type new room name" /><br><br>
+
+      <!-- Button to join chat -->
+      <button onclick="joinChat()">Join</button>
+    </div>
+  </div>
+
+  <!-- 🔹 ACTUAL CHAT PAGE SECTION -->
+  <!-- 👇 Hidden by default, shown only after user joins -->
+  <div id="chatPage" style="display: none;">
+    <!-- Dynamic room title -->
+    <h2 style="text-align: center;"><span id="roomName"></span></h2>
+
+    <!-- All chat messages will be shown here -->
+    <div id="chatBox"></div>
+
+    <!-- Message input section with emoji & gif buttons -->
+    <div class="message-bar">
+      <input type="text" id="messageInput" placeholder="Type a message" onkeydown="handleKey(event)" />
+      <button onclick="openEmojiPicker()">😊</button>
+      <button onclick="sendGif()">GIF</button>
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <!-- JS file to control chat logic -->
+  <script src="script.js"></script>
+</body>
+</html>
