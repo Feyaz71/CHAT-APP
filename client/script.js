@@ -7,7 +7,7 @@ window.onload = loadRooms;
 
 // 🔁 This function gets the list of active chat rooms from backend
 function loadRooms() {
-  fetch("http://localhost:8081/rooms") // request sent to backend
+  fetch("/rooms") // request sent to backend
     .then(res => res.json()) // convert response to json
     .then(data => {
       const dropdown = document.getElementById("roomDropdown");
@@ -54,7 +54,8 @@ function joinChat() {
   document.getElementById('roomName').textContent = room;
 
   // open a WebSocket connection
-  socket = new WebSocket('ws://localhost:8081');
+  socket = new WebSocket(`wss://${window.location.host}`);
+
 
   // 🔗 When socket connects
   socket.onopen = () => {
