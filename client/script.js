@@ -1,27 +1,29 @@
-let socket;       // to hold our socket connection
-let username;     // username of user
-let room;         // room name user joins
+let socket;       // WebSocket connection
+let username;     // Current user's name
+let room;         // Current chat room name
 
-// 📌 As soon as page load, we load existing rooms
+// 🔁 Load active rooms when the page loads
 window.onload = loadRooms;
 
-// 🔁 This function gets the list of active chat rooms from backend
+// ✅ FORCE LOCALHOST (for development only)
+const API_BASE = 'http://localhost:8081';
+const WS_BASE = 'ws://localhost:8081';
+
+// 📥 Fetch active rooms from the backend
 function loadRooms() {
-  fetch("/rooms") // request sent to backend
-    .then(res => res.json()) // convert response to json
+  fetch(`${API_BASE}/rooms`)
+    .then(res => res.json())
     .then(data => {
       const dropdown = document.getElementById("roomDropdown");
-      dropdown.innerHTML = '<option value="">-- Select existing room --</option>'; // default text
+      dropdown.innerHTML = '<option value="">-- Select existing room --</option>';
 
-      // if no room exist
       if (data.rooms.length === 0) {
-        const emptyOption = document.createElement("option");
-        emptyOption.textContent = "No active rooms yet";
-        emptyOption.disabled = true;
-        dropdown.appendChild(emptyOption);
+        const noRoom = document.createElement("option");
+        noRoom.textContent = "No active rooms yet";
+        noRoom.disabled = true;
+        dropdown.appendChild(noRoom);
       }
 
-      // add all rooms in dropdown list
       data.rooms.forEach(room => {
         const option = document.createElement("option");
         option.value = room;
@@ -29,93 +31,82 @@ function loadRooms() {
         dropdown.appendChild(option);
       });
     })
-    .catch(err => console.error("Could not fetch rooms", err));
+    .catch(err => console.error("❌ Could not fetch rooms:", err));
 }
 
-// 🧠 When user clicks "Join" btn
+// 🧠 Handle user clicking "Join Chat"
 function joinChat() {
-  // get user input and remove extra space
   username = document.getElementById('username').value.trim();
   const dropdownRoom = document.getElementById('roomDropdown').value;
   const manualRoom = document.getElementById('room').value.trim();
-
-  // pick room either selected or typed
   room = dropdownRoom || manualRoom;
 
-  // if user forgets to enter anything
   if (!username || !room) {
-    alert("Please enter username and room.");
+    alert("⚠️ Please enter both username and room.");
     return;
   }
 
-  // hide login screen & show chat page
+  // 🔀 Switch to chat interface
   document.querySelector('.main-wrapper').style.display = 'none';
   document.getElementById('chatPage').style.display = 'block';
   document.getElementById('roomName').textContent = room;
 
-  // open a WebSocket connection
-  socket = new WebSocket(`wss://${window.location.host}`);
+  // 🌐 Establish WebSocket connection
+  socket = new WebSocket(WS_BASE);
 
-
-  // 🔗 When socket connects
+  // ✅ Once connected, join the room
   socket.onopen = () => {
-    // send user info to server
     socket.send(JSON.stringify({ type: 'join', username, room }));
-    setTimeout(loadRooms, 500); // update room list
+    setTimeout(loadRooms, 500); // Refresh room list
   };
 
-  // 📥 Handle incoming messages
+  // 📩 Handle incoming messages
   socket.onmessage = (event) => {
-    const msg = JSON.parse(event.data); // convert incoming JSON
+    const msg = JSON.parse(event.data);
     const messageElement = document.createElement("div");
 
-    // if error (like same username)
     if (msg.type === 'error') {
       alert(msg.message);
-      socket.close();     // close connection
-      location.reload();  // refresh page
+      socket.close();
+      location.reload();
       return;
     }
 
-    // actual user message
     if (msg.type === 'message') {
-      messageElement.innerText = `${msg.username} (${msg.time}): ${msg.message}`;
-    } 
-    // system message like user joined
-    else if (msg.type === 'info') {
-      messageElement.innerText = msg.message;
+      messageElement.textContent = `${msg.username} (${msg.time}): ${msg.message}`;
+    } else if (msg.type === 'info') {
+      messageElement.textContent = msg.message;
       messageElement.style.fontStyle = "italic";
     }
 
-    // add msg to chat box
     const chatBox = document.getElementById("chatBox");
     chatBox.appendChild(messageElement);
-    chatBox.scrollTop = chatBox.scrollHeight; // auto scroll down
+    chatBox.scrollTop = chatBox.scrollHeight;
   };
 
-  // error while connecting
+  // ❌ WebSocket error
   socket.onerror = (err) => {
     console.error("❌ WebSocket error:", err);
   };
 
-  // if user gets disconnected
+  // 📴 WebSocket closed
   socket.onclose = () => {
     console.warn("⚠️ WebSocket connection closed.");
   };
 }
 
-// 📨 Send message to server
+// 📤 Send message to server
 function sendMessage() {
   const input = document.getElementById('messageInput');
   const message = input.value.trim();
 
-  if (message && socket) {
+  if (message && socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify({ type: 'message', message }));
-    input.value = ''; // clear input
+    input.value = '';
   }
 }
 
-// ⌨️ Allow enter key to send message
+// ⏎ Send message on pressing Enter
 function handleKey(event) {
   if (event.key === 'Enter') {
     event.preventDefault();
@@ -123,12 +114,12 @@ function handleKey(event) {
   }
 }
 
-// 😊 Emoji button (not done yet)
+// 😊 Placeholder for future emoji support
 function openEmojiPicker() {
   alert("😊 Emoji picker coming soon!");
 }
 
-// 🎞️ GIF button (not done yet)
+// 🎞️ Placeholder for future GIF support
 function sendGif() {
   alert("🎞️ GIF support coming soon!");
 }
