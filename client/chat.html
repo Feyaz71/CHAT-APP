@@ -6,11 +6,12 @@
     <title>Chat App</title>
 
     <link rel="stylesheet" href="style.css" />
-    <!-- Ensure you have Font Awesome loaded for the emoji icon, or just use the emoji character -->
+    <!-- Link Font Awesome for the emoji icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
+    <!-- CRITICAL: This container MUST exist for notifications to work -->
     <div id="notificationContainer"></div>
     
     <nav class="navbar">
@@ -24,6 +25,7 @@
         </div>
     </nav>
 
+    <!-- Login/Room Selection Page -->
     <div class="main-wrapper">
         <div class="login-box">
             <h2>Join Chat</h2>
@@ -40,11 +42,12 @@
         </div>
     </div>
 
+    <!-- Main Chat Page -->
     <div id="chatPage" style="display: none;">
-        <!-- The room name display element with the corrected ID: 'roomName' -->
+        <!-- Element to display the current room name (ID: roomName) -->
         <h2 style="text-align: center;"><span id="roomName"></span></h2>
 
-        <!-- The main chat message container -->
+        <!-- The main chat message container (ID: chatBox) -->
         <div id="chatBox"></div>
 
         <!-- Input bar and emoji container -->
@@ -58,10 +61,10 @@
             
             <div class="message-bar">
                 <button class="message-button emoji-button" id="emojiBtn">
-                    <!-- Using Font Awesome icon -->
                     <i class="far fa-smile"></i>
                 </button>
-                <input type="text" id="messageInput" placeholder="Type a message...">
+                <!-- Input field (ID: messageInput) -->
+                <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="handleKey(event)">
                 <button class="message-button" id="sendBtn" onclick="sendMessage()">Send</button>
             </div>
         </div>
