@@ -1,17 +1,39 @@
 let socket;       // WebSocket connection
 let username;     // Current user's name
 let room;         // Current chat room name
+let messageInput;
+let emojiBtn;
+let emojiPanel; 
+let emojiGrid;  
+let isEmojiPanelOpen = false; 
 
-// 🔁 Load active rooms when the page loads
-window.onload = loadRooms;
+// Array of common emojis
+const emojis = [
+    '😀', '😂', '🤣', '😊', '🥰', '😍', '🤩', '😘', '😋', '😎',
+    '😭', '😢', '🤯', '🥳', '🤔', '🤫', '😶', '😴', '👋', '👍', 
+    '👎', '👏', '🙏', '🙌', '💪', '🔥', '💖', '💔', '🍕', '🍔', 
+    '🍟', '☕', '🍺', '🎁', '🎂', '🎈', '🎉', '🎃', '🐶', '🐱', 
+    '🏡', '🚀', '⭐', '💯', '✅'
+];
 
-// ✅ FORCE LOCALHOST (for development only)
-const API_BASE = 'http://localhost:8081';
-const WS_BASE = 'ws://localhost:8081';
 
-// --- NEW UTILITY FUNCTIONS ---
+// 💥💥💥 CRITICAL FIX: DYNAMIC CONNECTION SETUP 💥💥💥
+// This dynamically determines the host and protocol based on where the page is loaded.
+const host = window.location.host; 
+const protocol = window.location.protocol; 
 
-// 1. 🕒 Formats Unix timestamp to HH:MM AM/PM (WhatsApp Style)
+// For REST (API) calls (like fetching /rooms), use the same protocol/host as the page.
+const API_BASE = `${protocol}//${host}`; 
+
+// For WebSocket (WS) connection: use 'wss:' if the site is HTTPS (like on Render), otherwise 'ws:'.
+const wsProtocol = protocol === 'https:' ? 'wss:' : 'ws:';
+const WS_BASE = `${wsProtocol}//${host}`; 
+// 💥💥💥 END CRITICAL FIX 💥💥💥
+
+
+// --- UTILITY FUNCTIONS ---
+
+// 1. 🕒 Formats Unix timestamp to HH:MM AM/PM
 function formatTime(timestamp) {
     const date = new Date(timestamp);
     let hours = date.getHours();
@@ -19,34 +41,30 @@ function formatTime(timestamp) {
     
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
-    hours = hours ? hours : 12; // The hour '0' should be '12'
+    hours = hours ? hours : 12; 
     minutes = minutes < 10 ? '0' + minutes : minutes;
 
     return `${hours}:${minutes} ${ampm}`;
 }
 
-// 2. 🔔 Function to display floating notifications
+// 2. 🔔 Function to display floating notifications (Used instead of alert())
 function showFloatingNotification(message, type) {
     const container = document.getElementById('notificationContainer');
     const alertDiv = document.createElement('div');
     
-    // Assign classes: 'info' for join/system, 'error' for failure
     alertDiv.classList.add('notification', type); 
     alertDiv.textContent = message;
 
     container.appendChild(alertDiv);
 
-    // 1. Show the notification (triggers the CSS transition)
     setTimeout(() => {
         alertDiv.classList.add('show');
     }, 50);
 
-    // 2. Hide (fade out) and remove after 3 seconds
     setTimeout(() => {
         alertDiv.style.opacity = '0';
-        alertDiv.style.transform = 'translateY(-50px)';
+        alertDiv.style.transform = 'translateY(-20px)';
         
-        // Remove the element from the DOM after the animation completes
         setTimeout(() => {
             if (container.contains(alertDiv)) {
                 container.removeChild(alertDiv);
@@ -55,7 +73,76 @@ function showFloatingNotification(message, type) {
     }, 3000); 
 }
 
-// --- END UTILITY FUNCTIONS ---
+// 3. Appends a message to the chat box
+function appendMessage(sender, content, isMine, timestamp) {
+    const chatBox = document.getElementById("chatBox");
+    if (!chatBox) return;
+
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add('chat-message', isMine ? 'my-message' : 'other-message');
+
+    const formattedTime = formatTime(timestamp);
+
+    messageDiv.innerHTML = `
+        <div class="chat-message-bubble">
+            <span class="message-username">${sender}</span>
+            <div class="message-content">
+                <p class="message-text">${content}</p>
+                <span class="timestamp-label">${formattedTime}</span>
+            </div>
+        </div>
+    `;
+    
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// --- EMOJI FUNCTIONS ---
+
+// 1. Populates the grid with emoji buttons
+function populateEmojiPanel() {
+    if (!emojiGrid) return;
+    
+    emojiGrid.innerHTML = ''; 
+    emojis.forEach(emoji => {
+        const span = document.createElement('span');
+        span.className = 'emoji-item';
+        span.textContent = emoji;
+        span.addEventListener('click', () => insertEmoji(emoji));
+        emojiGrid.appendChild(span);
+    });
+}
+
+// 2. Toggles the visibility of the panel
+function openEmojiPicker() {
+    if (!emojiPanel) return;
+
+    isEmojiPanelOpen = !isEmojiPanelOpen;
+    emojiPanel.style.display = isEmojiPanelOpen ? 'grid' : 'none';
+
+    if (isEmojiPanelOpen && messageInput) {
+        messageInput.focus();
+    }
+}
+
+// 3. Inserts the emoji into the message input at the current cursor position
+function insertEmoji(emoji) {
+    if (!messageInput) return;
+
+    const start = messageInput.selectionStart;
+    const end = messageInput.selectionEnd;
+    const value = messageInput.value;
+
+    messageInput.value = value.substring(0, start) + emoji + value.substring(end);
+
+    const newCursorPos = start + emoji.length;
+    messageInput.selectionStart = newCursorPos;
+    messageInput.selectionEnd = newCursorPos;
+
+    messageInput.focus();
+}
+
+// --- END EMOJI FUNCTIONS ---
 
 
 // 📥 Fetch active rooms from the backend
@@ -73,14 +160,14 @@ function loadRooms() {
         dropdown.appendChild(noRoom);
       }
 
-      data.rooms.forEach(room => {
+      data.rooms.forEach(r => {
         const option = document.createElement("option");
-        option.value = room;
-        option.textContent = room;
+        option.value = r;
+        option.textContent = r;
         dropdown.appendChild(option);
       });
     })
-    .catch(err => console.error("❌ Could not fetch rooms:", err));
+    .catch(err => console.error("❌ Could not fetch rooms (This is expected if server isn't running):", err));
 }
 
 // 🧠 Handle user clicking "Join Chat"
@@ -91,16 +178,17 @@ function joinChat() {
   room = dropdownRoom || manualRoom;
 
   if (!username || !room) {
-    alert("⚠️ Please enter both username and room.");
+    // Replaced alert() with the custom notification function
+    showFloatingNotification("⚠️ Please enter both username and room.", 'error');
     return;
   }
 
   // 🔀 Switch to chat interface
   document.querySelector('.main-wrapper').style.display = 'none';
-  document.getElementById('chatPage').style.display = 'block';
-  document.getElementById('roomName').textContent = room;
+  document.getElementById('chatPage').style.display = 'flex'; // Use 'flex' since we set it up that way
+  document.getElementById('roomNameDisplay').textContent = `Room: ${room}`; // Corrected ID used in HTML
 
-  // 🌐 Establish WebSocket connection
+  // 🌐 Establish WebSocket connection - NOW USES DYNAMIC WS_BASE
   socket = new WebSocket(WS_BASE);
 
   // ✅ Once connected, join the room
@@ -112,45 +200,22 @@ function joinChat() {
   // 📩 Handle incoming messages
   socket.onmessage = (event) => {
     const msg = JSON.parse(event.data);
-    const chatBox = document.getElementById("chatBox");
 
     if (msg.type === 'error') {
-      // Use floating notification for error
       showFloatingNotification(msg.message, 'error');
       socket.close();
-      // Give time for notification before reload
       setTimeout(() => location.reload(), 1500); 
       return;
     }
 
     if (msg.type === 'info') {
-      // Use floating notification for join/leave
       showFloatingNotification(msg.message, 'info');
-      return; // Do not append to chatBox
+      return; 
     }
     
     if (msg.type === 'message') {
-      // 💡 MODIFICATION: Create structured message bubble
-      const messageDiv = document.createElement("div");
-      // Use "my-message" or "other-message" class for different styling
-      messageDiv.classList.add('chat-message', msg.username === username ? 'my-message' : 'other-message');
-
-      // Format time using the new function (msg.timestamp comes from the server)
-      const formattedTime = formatTime(msg.timestamp);
-
-      // Construct the message bubble content with timestamp in a small span
-      messageDiv.innerHTML = `
-        <div class="chat-message-bubble">
-            <span class="message-username">${msg.username}</span>
-            <div class="message-content">
-                <p class="message-text">${msg.message}</p>
-                <span class="timestamp-label">${formattedTime}</span>
-            </div>
-        </div>
-      `;
-    
-      chatBox.appendChild(messageDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      const isMine = msg.username === username;
+      appendMessage(msg.username, msg.message, isMine, msg.timestamp);
     }
   };
 
@@ -169,12 +234,12 @@ function joinChat() {
 
 // 📤 Send message to server
 function sendMessage() {
-  const input = document.getElementById('messageInput');
-  const message = input.value.trim();
+  const message = messageInput.value.trim();
 
   if (message && socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify({ type: 'message', message }));
-    input.value = '';
+    messageInput.value = '';
+    if (isEmojiPanelOpen) openEmojiPicker(); // Close panel after sending
   }
 }
 
@@ -186,124 +251,28 @@ function handleKey(event) {
   }
 }
 
-// --- EMOJI Functionality (Corrected) ---
-
-/**
- * Focuses the message input to trigger the native emoji picker on the OS/Browser.
- * This is the fixed version to prevent focus issues.
- */
-function openEmojiPicker() {
-    // CRITICAL FIX: Ensure the correct element is targeted and available.
-    if (messageInput) {
-        messageInput.focus(); 
-    } else {
-        // Log an error if the element isn't found to help with debugging.
-        console.error("Error: messageInput element not found or initialized.");
-    }
-}
-
-// --- Event Listener Fix ---
-
-// Ensure the listener is properly attached to the emoji button element.
-if (emojiBtn) {
-    emojiBtn.addEventListener('click', openEmojiPicker);
-}
-
-// Note: You must ensure 'messageInput' and 'emojiBtn' are correctly
-// initialized using document.getElementById(...) at the start of your script.
-
 // 🎞️ Placeholder for future GIF support
 function sendGif() {
-  alert("🎞️ GIF support coming soon!");
+    showFloatingNotification("🎞️ GIF support coming soon!", 'info');
 }
 
-let isEmojiPanelOpen = false; // State tracker for the panel
-let emojiPanel; // Reference to the panel div
-let emojiGrid;  // Reference to the grid div
-
-// Array of common emojis
-const emojis = [
-    '😀', '😂', '🤣', '😊', '🥰', '😍', '🤩', '😘', '😋', '😎',
-    '😭', '😢', '🤯', '🥳', '🤔', '🤫', '😶', '😴', '👋', '👍', 
-    '👎', '👏', '🙏', '🙌', '💪', '🔥', '💖', '💔', '🍕', '🍔', 
-    '🍟', '☕', '🍺', '🎁', '🎂', '🎈', '🎉', '🎃', '🐶', '🐱', 
-    '🏡', '🚀', '⭐', '💯', '✅'
-];
-
-// 🔁 Load active rooms when the page loads
+// 🔁 Initialize DOM elements and load rooms when the page loads
 window.onload = function() {
-    // 1. Initialize EMOJI DOM elements
+    // 1. Initialize DOM elements
     messageInput = document.getElementById('messageInput');
     emojiBtn = document.getElementById('emojiBtn');
-    emojiPanel = document.getElementById('emojiPanel'); // NEW
-    emojiGrid = document.getElementById('emojiGrid');   // NEW
+    // Note: gifBtn is not used, but kept for completeness
+    emojiPanel = document.getElementById('emojiPanel');
+    emojiGrid = document.getElementById('emojiGrid');
     
-    // 2. Attach EMOJI listener
+    // 2. Populate the emoji grid once
+    populateEmojiPanel();
+
+    // 3. Attach EMOJI listener
     if (emojiBtn) {
         emojiBtn.addEventListener('click', openEmojiPicker);
     }
 
-    // 3. Populate the emoji grid
-    populateEmojiPanel();
-
-    // 4. Load rooms (your existing logic)
+    // 4. Load rooms
     loadRooms();
-    
-    // You should also ensure your other variables (like messageInput) are 
-    // initialized here using document.getElementById('messageInput');
 };
-
-// --- EMOJI FUNCTIONS ---
-
-// 1. Populates the grid with emoji buttons
-function populateEmojiPanel() {
-    if (!emojiGrid) return;
-    
-    emojiGrid.innerHTML = ''; // Clear existing
-    emojis.forEach(emoji => {
-        const span = document.createElement('span');
-        span.className = 'emoji-item';
-        span.textContent = emoji;
-        // Attach click listener to insert the emoji
-        span.addEventListener('click', () => insertEmoji(emoji));
-        emojiGrid.appendChild(span);
-    });
-}
-
-// 2. Toggles the visibility of the panel
-function openEmojiPicker() {
-    if (!emojiPanel) return;
-
-    isEmojiPanelOpen = !isEmojiPanelOpen;
-    emojiPanel.style.display = isEmojiPanelOpen ? 'grid' : 'none';
-
-    // If opening, ensure the input is focused 
-    if (isEmojiPanelOpen && messageInput) {
-        messageInput.focus();
-    }
-}
-
-// 3. Inserts the emoji into the message input at the current cursor position
-function insertEmoji(emoji) {
-    if (!messageInput) return;
-
-    const start = messageInput.selectionStart;
-    const end = messageInput.selectionEnd;
-    const value = messageInput.value;
-
-    // Insert the emoji at the cursor position
-    messageInput.value = value.substring(0, start) + emoji + value.substring(end);
-
-    // Move the cursor after the inserted emoji
-    const newCursorPos = start + emoji.length;
-    messageInput.selectionStart = newCursorPos;
-    messageInput.selectionEnd = newCursorPos;
-
-    // Keep the input focused for immediate typing
-    messageInput.focus();
-}
-
-// 🎞️ Placeholder for future GIF support (Updated to use notification instead of alert)
-function sendGif() {
-    showFloatingNotification("🎞️ GIF support coming soon!", 'info');
-}
