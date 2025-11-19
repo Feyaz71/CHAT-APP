@@ -1,69 +1,62 @@
-/* 🟣 Font Setup - Custom Fonts I downloaded */
-
 @font-face {
-  font-family: 'font1'; /* Main heading font */
+  font-family: 'font1';
   src: url('fonts/font1.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'font2'; /* Used in nav title */
+  font-family: 'font2';
   src: url('fonts/font2.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
-/* 🟡 Resetting all browser default styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* ⚪ Body styling with bg image and font */
 body {
-  font-family: 'Poppins', sans-serif; /* Normal text font */
-  background: url(images/bg1.jpg); /* Custom background */
-  color: #f0f0f0; /* light font color */
+  font-family: 'Poppins', sans-serif;
+  background: url(images/bg1.jpg);
+  color: #f0f0f0;
 }
 
-/* 🔷 NAVBAR styling */
 .navbar {
   width: 100%;
-  background: rgba(255, 255, 255, 0.05); /* slight white transparent bg */
-  backdrop-filter: blur(10px); /* blurry effect */
+  height: 12vh;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
   color: white;
-  padding: 15px 30px;
-  position: fixed; /* stays on top */
+  padding: 10px 10px;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-/* nav container flex layout */
 .nav-container {
   display: flex;
-  justify-content: space-between;
+  justify-content:stretch;
   align-items: center;
 }
 
-/* navbar title uses 2nd font and purple */
 .nav-title {
   font-family: "font2";
   font-size: 2.5em;
   color: #8e44ec;
+  margin-right: 50%;
 }
 
-/* nav links setup */
 .nav-links {
   list-style: none;
   display: flex;
   gap: 20px;
 }
 
-/* links inside navbar */
 .nav-links a {
   color: #f0f0f0;
   text-decoration: none;
@@ -74,17 +67,14 @@ body {
   color: #8e44ec;
 }
 
-
-/* 🟩 MAIN LOGIN SECTION (centered box) */
 .main-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 100px auto; /* space under navbar */
   padding: 30px;
+  min-height: 100vh;
 }
 
-/* Login box design */
 .login-box {
   width: 100%;
   max-width: 400px;
@@ -93,18 +83,16 @@ body {
   border-radius: 15px;
   box-shadow: 0 0 15px rgba(142, 68, 236, 0.2);
   text-align: center;
-  backdrop-filter: blur(10px); /* blurry glass */
+  backdrop-filter: blur(10px);
 }
 
-/* login heading */
 .login-box h2 {
-  font-family: "font1"; /* custom downloaded font */
+  font-family: "font1";
   font-size: 2.5em;
   margin-bottom: 20px;
   color: #ffffff;
 }
 
-/* inputs and dropdown styling */
 .login-box input,
 .login-box select {
   padding: 12px;
@@ -122,7 +110,6 @@ body {
   color: #ccc;
 }
 
-/* Join button */
 .login-box button {
   width: 100%;
   padding: 12px;
@@ -139,11 +126,11 @@ body {
   background: #732dbe;
 }
 
-
-/* 🟨 CHAT PAGE STYLING */
-
 #chatPage {
-  margin-top: 100px; /* so it doesn't go under navbar */
+  /* FIX: Increased margin-top to prevent overlap with fixed navbar */
+  margin-top: 80px; 
+  margin-bottom: 20px; 
+  
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -153,6 +140,11 @@ body {
   box-shadow: 0 0 15px rgba(142, 68, 236, 0.2);
   backdrop-filter: blur(10px);
   color: #f0f0f0;
+  
+  /* FIX: Essential Flex properties for the full-height layout */
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px); 
 }
 
 #chatPage h2 {
@@ -161,10 +153,12 @@ body {
   color: #8e44ec;
 }
 
-/* message container box */
 #chatBox {
-  height: 500px;
-  overflow-y: auto;
+  /* FIX: Ensures chat history takes all available space and is scrollable */
+  flex-grow: 1; 
+  height: 52vh; 
+  overflow-y: auto; 
+  
   border: 1px solid #8e44ec;
   padding: 15px;
   margin-bottom: 15px;
@@ -172,13 +166,12 @@ body {
   border-radius: 10px;
 }
 
-
-/* 🟦 MESSAGE INPUT AREA */
-
 .message-bar {
   display: flex;
   gap: 8px;
   margin-top: 10px;
+  /* Ensures the message bar stays fixed at the bottom of #chatPage */
+  flex-shrink: 0; 
 }
 
 .message-bar input[type="text"] {
@@ -195,7 +188,6 @@ body {
   color: #ccc;
 }
 
-/* Send, emoji, gif buttons */
 .message-bar button {
   padding: 12px 15px;
   background: #8e44ec;
@@ -211,19 +203,174 @@ body {
   background: #732dbe;
 }
 
+.chat-message {
+    display: flex;
+    margin-bottom: 10px;
+}
 
-/* 🔻 RESPONSIVE STUFF for mobiles */
+.chat-message-bubble {
+    display: flex;
+    flex-direction: column; 
+    max-width: 70%;
+    padding: 8px 10px 5px 10px; 
+    border-radius: 10px;
+    position: relative; 
+    line-height: 1.4;
+    word-wrap: break-word;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.other-message {
+    justify-content: flex-start;
+}
+
+.other-message .chat-message-bubble {
+    background-color: #383838;
+    border-top-left-radius: 0;
+}
+
+.my-message {
+    justify-content: flex-end;
+}
+
+.my-message .chat-message-bubble {
+    background-color: #8e44ec;
+    color: white;
+    border-top-right-radius: 0;
+}
+
+.message-username {
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: #4CAF50;
+}
+
+.my-message .message-username {
+    color: #f0f0f0;
+}
+
+.message-content {
+    display: flex;
+    align-items: flex-end;
+}
+
+.message-text {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+}
+
+.timestamp-label {
+    font-size: 0.65em;
+    color: rgba(255, 255, 255, 0.6);
+    margin-left: 8px; 
+    padding-left: 0;
+    white-space: nowrap; 
+}
+
+.other-message .timestamp-label {
+    color: #aaa;
+}
+
+#notificationContainer {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.notification {
+    color: white;
+    padding: 12px 25px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    transform: translateY(-50px);
+}
+
+.notification.info {
+    background-color: rgba(60, 179, 113, 0.95);
+}
+
+.notification.error {
+    background-color: rgba(255, 69, 0, 0.95);
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 @media screen and (max-width: 768px) {
   .login-box {
     width: 90%;
   }
 
-  #chatBox {
-    height: 400px; /* slightly less height */
+  #chatPage {
+    height: calc(50vh);
+  }
+  
+  .chat-message-bubble {
+    max-width: 90%;
   }
 
   .nav-links {
     flex-wrap: wrap;
     justify-content: flex-end;
   }
+}
+
+/* Container for the input and controls (CRITICAL for positioning) */
+.chat-input-container {
+    position: relative; 
+    flex-shrink: 0; 
+}
+
+/* --- NEW EMOJI PANEL STYLES --- */
+#emojiPanel {
+    position: absolute;
+    bottom: 60px; /* Positions it above the input bar */
+    right: 8px; /* Aligns with the right side of the input bar */
+    width: 90%;
+    max-width: 350px; /* Keeps it manageable on desktop */
+    height: 200px;
+    background: #252525;
+    border: 1px solid #8e44ec;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    overflow-y: auto;
+    display: none; /* Hidden by default - JS will show it */
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 columns looks good on most screens */
+    gap: 5px;
+}
+
+.emoji-item {
+    font-size: 1.5em;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+    line-height: 1.5;
+    padding: 2px;
+    border-radius: 4px;
+}
+
+.emoji-item:hover {
+    background-color: #383838;
+    transform: scale(1.1);
 }
