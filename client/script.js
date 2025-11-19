@@ -50,6 +50,12 @@ function formatTime(timestamp) {
 // 2. 🔔 Function to display floating notifications (Used instead of alert())
 function showFloatingNotification(message, type) {
     const container = document.getElementById('notificationContainer');
+    // DEFENSIVE CHECK: If the container is null, log and stop.
+    if (!container) {
+        console.error("Notification container not found. Cannot show:", message);
+        return;
+    }
+
     const alertDiv = document.createElement('div');
     
     alertDiv.classList.add('notification', type); 
@@ -76,7 +82,11 @@ function showFloatingNotification(message, type) {
 // 3. Appends a message to the chat box
 function appendMessage(sender, content, isMine, timestamp) {
     const chatBox = document.getElementById("chatBox");
-    if (!chatBox) return;
+    // Defensive check for the chat container
+    if (!chatBox) {
+        console.error("Chat box element 'chatBox' not found. Message lost:", content);
+        return;
+    }
 
     const messageDiv = document.createElement("div");
     messageDiv.classList.add('chat-message', isMine ? 'my-message' : 'other-message');
@@ -85,9 +95,9 @@ function appendMessage(sender, content, isMine, timestamp) {
 
     messageDiv.innerHTML = `
         <div class="chat-message-bubble">
-            <span class="message-username">${sender}</span>
+            <span class="message-username">${sender || 'System'}</span>
             <div class="message-content">
-                <p class="message-text">${content}</p>
+                <p class="message-text">${content || 'Empty Message'}</p>
                 <span class="timestamp-label">${formattedTime}</span>
             </div>
         </div>
@@ -147,113 +157,118 @@ function insertEmoji(emoji) {
 
 // 📥 Fetch active rooms from the backend
 function loadRooms() {
-  fetch(`${API_BASE}/rooms`)
-    .then(res => res.json())
-    .then(data => {
-      const dropdown = document.getElementById("roomDropdown");
-      dropdown.innerHTML = '<option value="">-- Select existing room --</option>';
+    fetch(`${API_BASE}/rooms`)
+    .then(res => res.json())
+    .then(data => {
+        const dropdown = document.getElementById("roomDropdown");
+        if (!dropdown) return; 
+        dropdown.innerHTML = '<option value="">-- Select existing room --</option>';
 
-      if (data.rooms.length === 0) {
-        const noRoom = document.createElement("option");
-        noRoom.textContent = "No active rooms yet";
-        noRoom.disabled = true;
-        dropdown.appendChild(noRoom);
-      }
+        if (data.rooms.length === 0) {
+            const noRoom = document.createElement("option");
+            noRoom.textContent = "No active rooms yet";
+            noRoom.disabled = true;
+            dropdown.appendChild(noRoom);
+        }
 
-      data.rooms.forEach(r => {
-        const option = document.createElement("option");
-        option.value = r;
-        option.textContent = r;
-        dropdown.appendChild(option);
-      });
-    })
-    .catch(err => console.error("❌ Could not fetch rooms (This is expected if server isn't running):", err));
+        data.rooms.forEach(r => {
+            const option = document.createElement("option");
+            option.value = r;
+            option.textContent = r;
+            dropdown.appendChild(option);
+        });
+    })
+    .catch(err => console.error("❌ Could not fetch rooms (This is expected if server isn't running):", err));
 }
 
 // 🧠 Handle user clicking "Join Chat"
 function joinChat() {
-  username = document.getElementById('username').value.trim();
-  const dropdownRoom = document.getElementById('roomDropdown').value;
-  const manualRoom = document.getElementById('room').value.trim();
-  room = dropdownRoom || manualRoom;
+    username = document.getElementById('username').value.trim();
+    const dropdownRoom = document.getElementById('roomDropdown').value;
+    const manualRoom = document.getElementById('room').value.trim();
+    room = dropdownRoom || manualRoom;
 
-  if (!username || !room) {
-    // Replaced alert() with the custom notification function
-    showFloatingNotification("⚠️ Please enter both username and room.", 'error');
-    return;
-  }
+    if (!username || !room) {
+        showFloatingNotification("⚠️ Please enter both username and room.", 'error');
+        return;
+    }
 
-  // 🔀 Switch to chat interface
-  document.querySelector('.main-wrapper').style.display = 'none';
-  document.getElementById('chatPage').style.display = 'flex'; // Use 'flex' since we set it up that way
-  document.getElementById('roomNameDisplay').textContent = `Room: ${room}`; // Corrected ID used in HTML
+    // 🔀 Switch to chat interface
+    const mainWrapper = document.querySelector('.main-wrapper');
+    const chatPage = document.getElementById('chatPage');
+    const roomNameDisplay = document.getElementById('roomName'); 
 
-  // 🌐 Establish WebSocket connection - NOW USES DYNAMIC WS_BASE
-  socket = new WebSocket(WS_BASE);
+    if (mainWrapper) mainWrapper.style.display = 'none';
+    if (chatPage) chatPage.style.display = 'flex'; 
+    if (roomNameDisplay) roomNameDisplay.textContent = `Room: ${room}`; 
 
-  // ✅ Once connected, join the room
-  socket.onopen = () => {
-    socket.send(JSON.stringify({ type: 'join', username, room }));
-    setTimeout(loadRooms, 500); // Refresh room list
-  };
+    // 🌐 Establish WebSocket connection
+    socket = new WebSocket(WS_BASE);
 
-  // 📩 Handle incoming messages
-  socket.onmessage = (event) => {
-    const msg = JSON.parse(event.data);
+    // ✅ Once connected, join the room
+    socket.onopen = () => {
+        socket.send(JSON.stringify({ type: 'join', username, room }));
+        setTimeout(loadRooms, 500); // Refresh room list
+    };
 
-    if (msg.type === 'error') {
-      showFloatingNotification(msg.message, 'error');
-      socket.close();
-      setTimeout(() => location.reload(), 1500); 
-      return;
-    }
+    // 📩 Handle incoming messages
+    socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
 
-    if (msg.type === 'info') {
-      showFloatingNotification(msg.message, 'info');
-      return; 
-    }
-    
-    if (msg.type === 'message') {
-      const isMine = msg.username === username;
-      appendMessage(msg.username, msg.message, isMine, msg.timestamp);
-    }
-  };
+        if (msg.type === 'error') {
+            showFloatingNotification(msg.message, 'error');
+            socket.close();
+            setTimeout(() => location.reload(), 1500); 
+            return;
+        }
 
-  // ❌ WebSocket error
-  socket.onerror = (err) => {
-    console.error("❌ WebSocket error:", err);
-    showFloatingNotification("Connection error! See console for details.", 'error');
-  };
+        if (msg.type === 'info') {
+            showFloatingNotification(msg.message, 'info');
+            return; 
+        }
+        
+        if (msg.type === 'message') {
+            const isMine = msg.username === username;
+            appendMessage(msg.username, msg.message, isMine, msg.timestamp);
+        }
+    };
 
-  // 📴 WebSocket closed
-  socket.onclose = () => {
-    console.warn("⚠️ WebSocket connection closed.");
-    showFloatingNotification("Connection lost. Please rejoin.", 'error');
-  };
+    // ❌ WebSocket error
+    socket.onerror = (err) => {
+        console.error("❌ WebSocket error:", err);
+        showFloatingNotification("Connection error! See console for details.", 'error');
+    };
+
+    // 📴 WebSocket closed
+    socket.onclose = () => {
+        console.warn("⚠️ WebSocket connection closed.");
+        showFloatingNotification("Connection lost. Please rejoin.", 'error');
+    };
 }
 
 // 📤 Send message to server
 function sendMessage() {
-  const message = messageInput.value.trim();
+    if (!messageInput) return; 
+    const message = messageInput.value.trim();
 
-  if (message && socket && socket.readyState === WebSocket.OPEN) {
-    socket.send(JSON.stringify({ type: 'message', message }));
-    messageInput.value = '';
-    if (isEmojiPanelOpen) openEmojiPicker(); // Close panel after sending
-  }
+    if (message && socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: 'message', message }));
+        messageInput.value = '';
+        if (isEmojiPanelOpen) openEmojiPicker(); // Close panel after sending
+    }
 }
 
 // ⏎ Send message on pressing Enter
 function handleKey(event) {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    sendMessage();
-  }
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        sendMessage();
+    }
 }
 
 // 🎞️ Placeholder for future GIF support
 function sendGif() {
-    showFloatingNotification("🎞️ GIF support coming soon!", 'info');
+    showFloatingNotification("🎞️ GIF support coming soon!", 'info');
 }
 
 // 🔁 Initialize DOM elements and load rooms when the page loads
@@ -261,7 +276,6 @@ window.onload = function() {
     // 1. Initialize DOM elements
     messageInput = document.getElementById('messageInput');
     emojiBtn = document.getElementById('emojiBtn');
-    // Note: gifBtn is not used, but kept for completeness
     emojiPanel = document.getElementById('emojiPanel');
     emojiGrid = document.getElementById('emojiGrid');
     
@@ -273,6 +287,11 @@ window.onload = function() {
         emojiBtn.addEventListener('click', openEmojiPicker);
     }
 
-    // 4. Load rooms
+    // 4. Attach ENTER key listener (using keydown for better control)
+    if (messageInput) {
+        messageInput.addEventListener('keydown', handleKey);
+    }
+    
+    // 5. Load rooms
     loadRooms();
 };
