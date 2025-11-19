@@ -72,18 +72,16 @@ wss.on('connection', (socket) => {
 
       const { username, room } = user;
       
-      // 💡 MODIFICATION 1: Use Unix timestamp (number) instead of localized time string
       const timestamp = Date.now(); 
-      // 💡 MODIFICATION 2: Sanitize the message text
-      const cleanMessage = sanitize(msg.message);
+      const cleanMessage = sanitize(msg.message);
 
       rooms[room].forEach(s => {
         if (s.readyState === WebSocket.OPEN) {
           s.send(JSON.stringify({
             type: 'message',
             username,
-            message: cleanMessage, // Use sanitized message
-            timestamp // Use new timestamp
+            message: cleanMessage, 
+            timestamp 
           }));
         }
       });
