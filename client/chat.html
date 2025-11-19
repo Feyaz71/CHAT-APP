@@ -1,73 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat App</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chat App</title>
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css" />
+    <!-- Ensure you have Font Awesome loaded for the emoji icon, or just use the emoji character -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
     <div id="notificationContainer"></div>
     
-    <nav class="navbar">
-    <div class="nav-container">
-      <h1 class="nav-title">💬 Chat App</h1>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="#">Features</a></li>
-        <li><a href="#">About</a></li>
-      </ul>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">💬 Chat App</h1>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+        </div>
+    </nav>
 
-    <div class="main-wrapper">
-    <div class="login-box">
-      <h2>Join Chat</h2>
+    <div class="main-wrapper">
+        <div class="login-box">
+            <h2>Join Chat</h2>
 
-            <input type="text" id="username" placeholder="Enter username" /><br><br>
+            <input type="text" id="username" placeholder="Enter username" /><br><br>
 
-            <select id="roomDropdown">
-        <option value="">-- Select a room --</option>
-      </select><br><br>
+            <select id="roomDropdown">
+                <option value="">-- Select a room --</option>
+            </select><br><br>
 
-            <input type="text" id="room" placeholder="Or type new room name" /><br><br>
+            <input type="text" id="room" placeholder="Or type new room name" /><br><br>
 
-            <button onclick="joinChat()">Join</button>
-    </div>
-  </div>
-
-    <div id="chatPage" style="display: none;">
-        <h2 style="text-align: center;"><span id="roomName"></span></h2>
-
-        <div id="chatBox"></div>
-
-        <!-- You must wrap your input bar for relative positioning -->
-<div class="chat-input-container"> 
-    
-    <!-- ADD THIS EMOJI PANEL -->
-    <div id="emojiPanel" class="emoji-panel" >
-        <div class="emoji-grid" id="emojiGrid">
-           <h1>hj</h1>
-            <!-- Emojis will be populated here by JavaScript -->
+            <button onclick="joinChat()">Join</button>
         </div>
     </div>
-    
-    <!-- YOUR EXISTING MESSAGE BAR -->
-    <div class="message-bar">
-        <!-- Your existing emoji button should have id="emojiBtn" -->
-        <button class="message-button emoji-button" id="emojiBtn">
-            <i class="far fa-smile"><p>😃</p></i>
-        </button>
-        <!-- Your existing text input field should have id="messageInput" -->
-        <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="handleKey(event)">
-        <!-- Your existing send button should have id="sendBtn" -->
-        <button class="message-button" id="sendBtn" onclick="sendMessage()">Send</button>
-    </div>
-</div>
-  </div>
 
-    <script src="script.js"></script>
+    <div id="chatPage" style="display: none;">
+        <!-- The room name display element with the corrected ID: 'roomName' -->
+        <h2 style="text-align: center;"><span id="roomName"></span></h2>
+
+        <!-- The main chat message container -->
+        <div id="chatBox"></div>
+
+        <!-- Input bar and emoji container -->
+        <div class="chat-input-container"> 
+            
+            <div id="emojiPanel" class="emoji-panel" >
+                <div class="emoji-grid" id="emojiGrid">
+                    <!-- Emojis populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="message-bar">
+                <button class="message-button emoji-button" id="emojiBtn">
+                    <!-- Using Font Awesome icon -->
+                    <i class="far fa-smile"></i>
+                </button>
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button class="message-button" id="sendBtn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
